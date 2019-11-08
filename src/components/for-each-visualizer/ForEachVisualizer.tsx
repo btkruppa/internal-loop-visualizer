@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Container, Row, Col } from 'reactstrap'
 import { format } from 'url';
+import CurrentElement from '../../styled-components/CurrentElement';
+import { useInterval } from '../../effects/interval.hook';
 
 const arrSnippet = `
 [
@@ -20,8 +22,15 @@ const arrSnippet = `
 export default function ForEachVisualizer() {
   const [inputArr, setInputArr] = useState<any[]>([8, 2, 4, 2, 8]);
   const [inputCB, setInputCB] = useState<any>({ fun: (ele: any) => 5 });
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  const [currentIteration, setCurrentIteration] = useState(0);
+  const [currentIteration, setCurrentIteration] = useState(-1);
+
+  useInterval(() => {
+    if (isPlaying && currentIteration < inputArr.length - 1) {
+      setCurrentIteration(currentIteration + 1);
+    }
+  }, 2500)
 
   function updateInputArr(event: React.ChangeEvent<HTMLTextAreaElement>) {
     console.log(event.target.value)
@@ -59,13 +68,18 @@ export default function ForEachVisualizer() {
   }
 
   function formatArrayForDisplay(arr: any[]) {
-    return '[' + arr.reduce((acc, cur) => {
-      if (typeof (cur) === 'object') {
-        return acc + ',' + JSON.stringify(cur);
-      } else {
-        return acc + ', ' + cur;
+    return <>
+      {
+        [...arr.reduce((acc, cur, index) => {
+          if (typeof (cur) === 'object') {
+
+            return [...acc, index !== 0 ? ', ' : '', index === currentIteration ? <CurrentElement>{JSON.stringify(cur)}</CurrentElement>: JSON.stringify(cur)];
+          } else {
+            return [...acc, index !== 0 ? ', ' : '', index === currentIteration ? <CurrentElement>{cur}</CurrentElement>: cur];
+          }
+        }, ['[']), ']']
       }
-    }) + ']';
+    </>
   }
 
   return (
@@ -89,7 +103,7 @@ export default function ForEachVisualizer() {
       <hr />
       <Row>
         <Col>
-          Array: {formatArrayForDisplay(inputArr)}
+          Array: {formatArrayForDisplay(inputArr)}.reduce({inputCB.fun.toString()})
         </Col>
         <Col>
           {/* {inputCB.toString()} */}
@@ -97,7 +111,7 @@ export default function ForEachVisualizer() {
       </Row>
       <Row>
         <Col>
-          <p>index: {currentIteration}</p>
+          <p>index: {currentIteration === -1 ? 'not started' : currentIteration}</p>
           <p>value: {inputArr[currentIteration]}</p>
           <p>
             OutputArr to this point: {
@@ -107,17 +121,17 @@ export default function ForEachVisualizer() {
               )
             }
           </p>
-          <button className="btn btn-success" 
+          <button className="btn btn-success"
             onClick={() => setCurrentIteration(currentIteration - 1)}
-            disabled={currentIteration <= 0}>
-              Previous
+            disabled={currentIteration < 0}>
+            Previous
           </button>
-          <button className="btn btn-success" 
+          <button className="btn btn-success"
             onClick={() => setCurrentIteration(currentIteration + 1)}
             disabled={currentIteration >= inputArr.length - 1}>Next
             </button>
-          <button className="btn btn-success">Play</button>
-          <button className="btn btn-success" onClick={() => setCurrentIteration(0)}>Reset</button>
+          <button className="btn btn-success" onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? 'Pause' : 'Play'}</button>
+          <button className="btn btn-success" onClick={() => setCurrentIteration(-1)}>Reset</button>
         </Col>
 
       </Row>
