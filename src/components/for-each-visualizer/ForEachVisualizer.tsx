@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import { Container, Row, Col } from 'reactstrap'
-import { format } from 'url';
-import CurrentElement from '../../styled-components/CurrentElement';
+import React, { useState } from 'react';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
+import { Col, Container, Row } from 'reactstrap';
 import { useInterval } from '../../effects/interval.hook';
+import CurrentElement from '../../styled-components/CurrentElement';
 
 const arrSnippet = `
 [
@@ -32,11 +32,27 @@ export default function ForEachVisualizer() {
     }
   }, 2500)
 
-  function updateInputArr(event: React.ChangeEvent<HTMLTextAreaElement>) {
-    console.log(event.target.value)
+  // function updateInputArr(event: React.ChangeEvent<HTMLTextAreaElement>) {
+  //   console.log(event.target.value)
+  //   try {
+  //     // eslint-disable-next-line
+  //     const arr: any = eval(event.target.value);
+  //     if (Array.isArray(arr)) {
+  //       setInputArr(arr);
+  //     } else {
+  //       throw new Error('Invalid Input');
+  //     }
+
+  //   } catch {
+  //     setInputArr(['Invalid Input'])
+  //   }
+  // }
+
+  function updateInputArr(editor: any, data: any, value: any) {
+    console.log(value)
     try {
       // eslint-disable-next-line
-      const arr: any = eval(event.target.value);
+      const arr: any = eval(value);
       if (Array.isArray(arr)) {
         setInputArr(arr);
       } else {
@@ -83,17 +99,27 @@ export default function ForEachVisualizer() {
   }
 
   return (
+    
     <Container>
       <Row>
-        <Col>
+        <Col xs="12" md="6">
           <p>
             Enter JavaScript array:
         </p>
-          <textarea onChange={updateInputArr} defaultValue="[8, 2, 4, 2, 8]" cols={30} rows={10}></textarea>
+          <CodeMirror
+
+            value="[8, 2, 4, 2, 8]"
+            options={{
+              mode: 'javascript',
+              lineNumbers: true,
+            }}
+            onChange={updateInputArr}
+          />
+          {/* <textarea onChange={updateInputArr} defaultValue="[8, 2, 4, 2, 8]" cols={30} rows={10}></textarea> */}
         </Col>
-        <Col>
+        <Col xs="12" md="6">
           <p>
-            Enter the .reduce callback function:
+            Enter the .map callback function:
         </p>
 
           <textarea onChange={updateInputCallback} defaultValue="(ele) => { return 5; }" cols={30} rows={10}></textarea>
@@ -103,7 +129,7 @@ export default function ForEachVisualizer() {
       <hr />
       <Row>
         <Col>
-          Array: {formatArrayForDisplay(inputArr)}.reduce({inputCB.fun.toString()})
+          Array: {formatArrayForDisplay(inputArr)}.map({inputCB.fun.toString()})
         </Col>
         <Col>
           {/* {inputCB.toString()} */}

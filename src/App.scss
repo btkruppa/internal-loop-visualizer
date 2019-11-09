@@ -1,4 +1,5 @@
 @import "bootstrap/scss/bootstrap.scss";
+@import "codemirror/lib/codemirror";
 
 .App {
   text-align: center;
@@ -25,4 +26,8 @@
 
 .app-nav {
   margin-bottom: 1em;
+}
+
+.react-codemirror2 {
+  border: 1px solid lightgray;
 }
